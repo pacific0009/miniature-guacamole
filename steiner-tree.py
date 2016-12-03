@@ -1,51 +1,25 @@
+#!/usr/bin/python
+
+# ------------------------------------------------------------------------------
+# Author: 
+#   ANAND RATNA, NIT Durgapur(charianand.maurya@gmail.com)
+# Description: 
+#	The function createSolution will take input list of points and find optimal rectilinear steineree.
+#	Place this file inside buil directry where you maked the z3 
+# Usage: 
+#   python steiner-tree.py
+# ------------------------------------------------------------------------------
+
 from z3 import *
-import re
-wire = 0
-def parse (s):
-    mo = re.match ("\s*(net[\w]*\d*)\s*(\d*)\s*(\d*)\s*\n", s)
-    if mo: return mo.groups ()
-
-def createnetList(netfile):
-	filne = netfile	
-	netList = []
-	count = 0
-	#opening file 
-	with open(filne, 'r+') as f:
-
-	#iterating lines of file
-	    for line in f:
-	#Checking/parsing line for net information
-	        a = parse(line)
-		#if line is a net info line
-		if a :
-		#net is the list to store all points in a the perticular net
-			net = []
-			#print "next "+a[1]+" "+a[2]
-		#To get each points of the net	
-			for i in range(int(a[2])):
-				#print f.next();
-			#pin coordinates are converted into  is list of number 
-				point = [int(n) for n in f.next().split()]
-			#pins coordinate list is inserted in to net
-				net.insert(i,point)
-	#the net list is inserted in to nets list 
-			netList.insert(count,net)
-			count = count+1
-	#print netList          
-	#print count
-	return netList
-
-
-
-def createSolution(netList, num):
-	print "Net ============================="+str(num)
+def createSolution(netList):
+	#netList is the list of vertex, co-ordinates of tree 
 	print netList
 	maxx = netList[0][0]
 	maxy = netList[0][1]
 	minx = netList[0][0]
 	miny = netList[0][1]
 
-#Setting min and max points
+#Setting min and max co-ordiates for solutin space
 	for p in netList:
 	    if maxx < p[0]:
 	        maxx=p[0]
@@ -105,19 +79,27 @@ def createSolution(netList, num):
 	opt = Optimize()
 
 	#Adding constraint to  solver
-	opt.add( uniq_c + cells_c +cost_c+conn_c)
+	opt.add( uniq_c + cells_c + cost_c + conn_c)
 	#minimizing cost/length
 	h=opt.minimize(cost)
 
 	if opt.check() == sat:
 	   m = opt.model()
-	   """r = [ [ m.evaluate(X[i][j]) for j in range(maxy) ]
+	   r = [ [ m.evaluate(X[i][j]) for j in range(maxy) ]
 	         for i in range(maxx) ]
-	    print_matrix(r)"""
-	   #wire = wire + m.evaluate(cost)
+	    print_matrix(r)
+	   
 	   # print(m.evaluate(cost))
-	   print "Net ========================= Completed" + str(num)
+	   print "Net ========================= Completed" 
 	   return m.evaluate(cost)
 	else:
 	    print "failed to solve"
 	    return -1
+def main():
+	#net is the list of points of the tree
+	net = [[2,3], [5,8], [9,8]]
+	m = createSolution(net)
+	print m
+
+if __name__ == '__main__':
+   main()
